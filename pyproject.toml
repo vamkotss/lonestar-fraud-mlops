@@ -1,0 +1,35 @@
+[project]
+name = "lonestar-fraud-mlops"
+version = "0.1.0"
+description = "Card fraud detection with full MLOps: leakage-audited features, expected-loss thresholding, batch+online serving, drift monitoring, and automated retraining."
+requires-python = ">=3.12"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "pyarrow",
+    "python-dotenv",
+    "tenacity",
+]
+
+[project.optional-dependencies]
+# Installed as milestones need them; kept separate so the base install stays light.
+ml = ["mlflow", "shap", "evidently"]
+api = ["fastapi", "uvicorn", "pydantic"]
+dev = ["pytest", "ruff"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# A pragmatic rule set: pycodestyle errors/warnings, pyflakes, isort, bugbear, comprehensions, pyupgrade.
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]  # line length handled by the formatter, not enforced as an error
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]

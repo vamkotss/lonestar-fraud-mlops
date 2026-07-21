@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets & config
+.env
+
+# Data (generated, not committed - except the generator and tiny samples)
+data/raw/
+data/staging/
+data/outputs/
+*.parquet
+*.csv
+!data/samples/*.csv
+
+# MLflow local tracking
+mlruns/
+mlartifacts/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
