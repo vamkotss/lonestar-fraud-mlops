@@ -42,5 +42,8 @@ jobs:
       - name: "Train models (CI: skip MLflow tracking)"
         run: python -m lonestar.modeling --features data/features/features.parquet --out models --no-mlflow
 
+      - name: Build decision policy + economics memo
+        run: python -m lonestar.decisions --features data/features/features.parquet --raw data/raw --model models/fraud_model.joblib --out models
+
       - name: Tests
         run: pytest -q

@@ -1,0 +1,15 @@
+{
+  "segment_col": "entry_mode",
+  "global_threshold": 1.000000001,
+  "segment_thresholds": {
+    "CHIP": 1.000000001,
+    "CONTACTLESS": 1.000000001,
+    "ECOM": 1.000000001,
+    "MANUAL": 1.000000001,
+    "SWIPE": 1.000000001
+  },
+  "cost_model": {
+    "fp_fixed": 5.0,
+    "fp_rate": 0.02
+  }
+}
