@@ -12,6 +12,11 @@ xgboost==3.3.0           # pinned: the model must be reproducible across machine
 mlflow>=3.0              # experiment tracking (local sqlite backend)
 joblib>=1.3              # save/load the fitted model artifact
 
+# --- Milestone 6: online scoring service ---
+fastapi>=0.110           # the scoring API
+uvicorn[standard]>=0.29  # ASGI server to run it
+httpx>=0.27              # used by FastAPI's TestClient in the serving tests
+
 # --- dev / CI ---
 pytest>=8.0
 ruff>=0.5
