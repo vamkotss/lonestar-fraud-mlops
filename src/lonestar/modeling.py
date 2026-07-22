@@ -94,7 +94,7 @@ def build_model(kind: str, scale_pos_weight: float = 1.0):
             scale_pos_weight=scale_pos_weight,
             eval_metric="aucpr",
             tree_method="hist",
-            n_jobs=2,
+            n_jobs=1,  # single-threaded -> deterministic across machines/CI
             random_state=20260721,
         )
     raise ValueError(f"unknown model kind: {kind!r}")

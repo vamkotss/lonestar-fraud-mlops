@@ -8,7 +8,7 @@ scikit-learn>=1.4        # roc_auc_score in the leak tests; LogisticRegression i
 matplotlib>=3.8          # the two EDA story figures
 
 # --- Milestone 4: models + tracking ---
-xgboost>=2.0             # the gradient-boosted classifier (ADR 0002)
+xgboost==3.3.0           # pinned: the model must be reproducible across machines/CI
 mlflow>=3.0              # experiment tracking (local sqlite backend)
 joblib>=1.3              # save/load the fitted model artifact
 
