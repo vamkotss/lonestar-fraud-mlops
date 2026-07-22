@@ -8,7 +8,6 @@ twins of the M2 leaks behave correctly and that label censoring works.
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
 
 from lonestar import _labeling, audit, features
 

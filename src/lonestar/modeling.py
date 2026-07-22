@@ -33,7 +33,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -175,7 +175,7 @@ def save_model(model, kind: str, out: Path, metrics: dict, split: dict, prevalen
     card = {
         "model_kind": kind,
         "feature_columns": list(FEATURE_COLUMNS),  # exact order the model expects
-        "trained_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "trained_at_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "holdout_metrics": metrics,
         "training_window": split,
         "test_prevalence": round(prevalence, 6),
