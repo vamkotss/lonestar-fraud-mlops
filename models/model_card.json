@@ -1,0 +1,38 @@
+{
+  "model_kind": "lr",
+  "feature_columns": [
+    "log_amount",
+    "hour",
+    "dow",
+    "is_weekend",
+    "entry_CHIP",
+    "entry_CONTACTLESS",
+    "entry_SWIPE",
+    "entry_ECOM",
+    "entry_MANUAL",
+    "is_foreign",
+    "mcc_missing",
+    "is_capture",
+    "card_txn_count_prev_1h",
+    "card_txn_count_prev_24h",
+    "card_txn_count_prev_7d",
+    "card_amount_sum_prev_24h",
+    "secs_since_prev_txn",
+    "amount_vs_card_prior_mean",
+    "merchant_txns_seen",
+    "merchant_fraud_rate_asof"
+  ],
+  "trained_at_utc": "2026-07-22T02:46:08+00:00",
+  "holdout_metrics": {
+    "roc_auc": 0.8633,
+    "pr_auc": 0.7343
+  },
+  "training_window": {
+    "cutoff": "2025-03-14 07:41:35.200000",
+    "n_train": 4039432,
+    "n_test": 1009858
+  },
+  "test_prevalence": 0.005455,
+  "primary_metric": "pr_auc",
+  "notes": "Select and monitor on PR-AUC; ROC-AUC flatters at this imbalance."
+}

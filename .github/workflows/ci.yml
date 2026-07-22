@@ -36,5 +36,11 @@ jobs:
       - name: EDA findings (no figures needed in CI)
         run: python -m lonestar.eda --data data/raw --no-figures
 
+      - name: Build point-in-time features
+        run: python -m lonestar.features --data data/raw --out data/features
+
+      - name: Train models (CI: skip MLflow tracking)
+        run: python -m lonestar.modeling --features data/features/features.parquet --out models --no-mlflow
+
       - name: Tests
         run: pytest -q

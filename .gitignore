@@ -26,3 +26,8 @@ mlartifacts/
 .DS_Store
 .vscode/
 .idea/
+
+models/*.joblib
+mlflow.db
+mlartifacts/
+mlruns/

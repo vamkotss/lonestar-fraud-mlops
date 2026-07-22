@@ -7,6 +7,11 @@ scikit-learn>=1.4        # roc_auc_score in the leak tests; LogisticRegression i
 # --- Milestone 2: EDA + leakage audit ---
 matplotlib>=3.8          # the two EDA story figures
 
+# --- Milestone 4: models + tracking ---
+xgboost>=2.0             # the gradient-boosted classifier (ADR 0002)
+mlflow>=3.0              # experiment tracking (local sqlite backend)
+joblib>=1.3              # save/load the fitted model artifact
+
 # --- dev / CI ---
 pytest>=8.0
 ruff>=0.5
