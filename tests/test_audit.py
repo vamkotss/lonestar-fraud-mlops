@@ -28,7 +28,7 @@ def test_attach_row_label_matches_auth_code_membership(tx, labels, row_fraud):
 
 def test_attach_row_label_respects_as_of(tx, labels):
     """With an early as_of, fewer chargebacks are 'known' (they report late)."""
-    early = tx["event_ts"].min() + pd.Timedelta(days=90)
+    early = tx["event_ts"].min() + np.timedelta64(90, "D")
     known_early = _labeling.attach_row_label(tx, labels, as_of=early).sum()
     known_all = _labeling.attach_row_label(tx, labels).sum()
     # Some fraud has not been reported yet by day 90, so strictly fewer are known.

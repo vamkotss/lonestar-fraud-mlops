@@ -144,7 +144,7 @@ def test_leak_c_next_24h_is_forward_looking(tx):
         r = df.iloc[i]
         same = df[df["card_id"] == r["card_id"]]
         window = (same["event_ts"] > r["event_ts"]) & (
-            same["event_ts"] <= r["event_ts"] + pd.Timedelta("24h")
+            same["event_ts"] <= r["event_ts"] + np.timedelta64(24, "h")
         )
         return int(window.sum())
 
