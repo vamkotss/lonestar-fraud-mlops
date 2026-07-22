@@ -1,24 +1,23 @@
 name: CI
 
-# The shared portfolio CI template: on every push and PR, lint then test.
-# A PR that fails CI does not merge. Project-specific gates (a model-parity
-# check, a drift test) are added as those milestones land.
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
-  quality:
+  test:
     runs-on: ubuntu-latest
+    env:
+      LS_CI_MODE: "1"          # small-but-representative dataset -> seconds, not minutes
+      LS_SEED: "20260721"
+      PYTHONPATH: "src:."      # package import + repo-root imports (P2 fix)
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: |
@@ -26,7 +25,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Lint (ruff)
-        run: ruff check .
+        run: ruff check src tests
 
-      - name: Test (pytest)
+      - name: Generate CI-scale dataset
+        run: python -m lonestar.generation --out data/raw
+
+      - name: Tests
         run: pytest -q

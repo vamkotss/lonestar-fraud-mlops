@@ -1,27 +1,47 @@
-# Data Dictionary
+# Data Dictionary — Generated Data (Milestone 1)
 
-Every table and column: type, meaning, source, and quality rules. Populated as
-each table is built; the planned schema is in `erd.md`.
+Two tables are produced by `src/lonestar/generation.py`. Fraud is **never** a
+column on `transactions` — it lives only in `chargeback_labels`, and it arrives
+30–60 days late (see ADR 0001).
 
-## raw.transactions  *(built in Milestone 1)*
+## `transactions`
 
-| Column | Type | Meaning | Quality rule |
-|---|---|---|---|
-| transaction_id | text | Unique transaction identifier | Primary key, non-null |
-| card_id | text | The card that made it | FK to cards |
-| authorized_at | timestamptz | Event time, timezone-corrected | Source is timezone-naive; corrected on load |
-| amount | numeric | Transaction amount (USD) | Non-null |
-| merchant_name | text | Raw merchant string | Deliberately un-normalized (e.g. `AMZN Mktp US*2K4`) |
-| merchant_category_code | text | MCC | ~4% missing (real-world gap) |
-| channel | text | card_present / ecommerce / recurring | Enumerated |
-| auth_or_capture | text | auth vs capture | Duplicate auth/capture pairs occur |
+The raw event stream, landed with its defects intact so cleaning is a tested,
+documented step later — not a silent one.
 
-## raw.chargeback_labels  *(built in Milestone 1)*
+| Column | Type | Notes |
+|---|---|---|
+| `transaction_id` | string | Unique per **row**. Auth and capture are separate rows. |
+| `auth_code` | string | Logical **purchase** key. Links an auth to its capture. |
+| `card_id` | string | Cardholder card. |
+| `account_id` | string | Owning account (a few cards per account). |
+| `merchant_id` | string | **Clean** canonical merchant id — the entity-resolution answer key. |
+| `merchant_name` | string | **Messy** descriptor. One `merchant_id` → many of these. |
+| `mcc` | Int64 (nullable) | Merchant category code. **~4% NULL** by design. |
+| `amount` | float | Transaction amount, USD. Captures may differ slightly (tips/partials). |
+| `currency` | string | `USD`. |
+| `entry_mode` | string | `CHIP` / `CONTACTLESS` / `SWIPE` / `ECOM` / `MANUAL`. |
+| `pos_country` | string | Usually `US`; the ring skews foreign. |
+| `event_ts` | datetime (**tz-naive**) | Event time (auth time on auth rows, capture time on capture rows). |
+| `response_code` | string | `APPROVED`. |
+| `event_type` | string | `AUTH` or `CAPTURE`. |
+| `dispute_reason_code` | string | ⚠️ **LEAK A** — see `leakage_traps.md`. |
+| `merchant_fraud_rate_lifetime` | float | ⚠️ **LEAK B** — see `leakage_traps.md`. |
+| `card_txn_count_next_24h` | int | ⚠️ **LEAK C** — see `leakage_traps.md`. |
 
-| Column | Type | Meaning | Quality rule |
-|---|---|---|---|
-| transaction_id | text | The disputed transaction | FK to transactions |
-| is_fraud | boolean | Confirmed fraud or not | Non-null |
-| reported_at | timestamptz | When the label arrived (30–60 days later) | Always > the transaction's authorized_at |
+## `chargeback_labels`
 
-*Feature, model, and prediction tables are documented as Milestones 3, 4, and 6 build them.*
+One row **per fraudulent purchase**. Non-fraud purchases have no row (their label
+is the *absence* of a chargeback after the maturity window). `reported_at` is what
+makes point-in-time-correct training possible.
+
+| Column | Type | Notes |
+|---|---|---|
+| `auth_code` | string | FK to the fraudulent purchase. |
+| `transaction_id` | string | The purchase's AUTH row, for convenience joins. |
+| `is_fraud` | bool | Always `True` (a chargeback table is fraud-only). |
+| `fraud_type` | string | `BASELINE` or `RING` (month-14 ring). |
+| `chargeback_amount` | float | Disputed amount. |
+| `reason_code` | string | Visa/MC-style dispute code. |
+| `event_ts` | datetime (**tz-naive**) | Original transaction time. |
+| `reported_at` | datetime (**tz-naive**) | When the chargeback landed = `event_ts` + 30–60 days. |
