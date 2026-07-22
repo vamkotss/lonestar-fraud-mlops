@@ -2,7 +2,10 @@
 numpy>=1.26
 pandas>=2.2
 pyarrow>=15.0
-scikit-learn>=1.4        # roc_auc_score in the leak tests
+scikit-learn>=1.4        # roc_auc_score in the leak tests; LogisticRegression in the audit
+
+# --- Milestone 2: EDA + leakage audit ---
+matplotlib>=3.8          # the two EDA story figures
 
 # --- dev / CI ---
 pytest>=8.0

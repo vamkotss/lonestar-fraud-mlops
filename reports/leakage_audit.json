@@ -1,0 +1,59 @@
+{
+  "n_rows": 5049290,
+  "row_fraud_rate": 0.002595,
+  "split_cutoff": "2025-01-18 15:11:29.400000",
+  "n_train": 3534503,
+  "n_test": 1514787,
+  "auc_with_leaks": 1.0,
+  "auc_without_leaks": 0.5553,
+  "auc_gap": 0.4447,
+  "detectors": [
+    {
+      "column": "dispute_reason_code",
+      "archetype": "post_outcome_field",
+      "single_feature_auc": 1.0,
+      "presence_label_agreement": 1.0,
+      "verdict": "LEAK",
+      "why": "Reason code exists only after a chargeback is filed; it cannot be known at transaction time."
+    },
+    {
+      "column": "merchant_fraud_rate_lifetime",
+      "archetype": "lookahead_target_encoding",
+      "merchants_with_varying_value": 0,
+      "n_merchants": 44,
+      "matches_full_history_fraud_mean": true,
+      "verdict": "LEAK",
+      "why": "Constant within each merchant and equal to that merchant's lifetime fraud rate -- it averaged over transactions that had not happened yet."
+    },
+    {
+      "column": "card_txn_count_next_24h",
+      "archetype": "temporal_lookahead_window",
+      "match_forward_recompute": 1.0,
+      "match_backward_recompute": 0.6308,
+      "verdict": "LEAK",
+      "why": "Values equal a forward-looking 24h count -- it counts transactions that occur AFTER the row being scored."
+    }
+  ],
+  "univariate_screen": {
+    "per_feature_auc": {
+      "log_amount": 0.7072,
+      "hour": 0.5034,
+      "dow": 0.5014,
+      "is_weekend": 0.5015,
+      "entry_CHIP": 0.5866,
+      "entry_CONTACTLESS": 0.5584,
+      "entry_SWIPE": 0.5227,
+      "entry_ECOM": 0.6722,
+      "entry_MANUAL": 0.5045,
+      "is_foreign": 0.6615,
+      "mcc_missing": 0.5003,
+      "is_capture": 0.5,
+      "has_dispute_code": 1.0,
+      "merchant_fraud_rate_lifetime": 0.726,
+      "card_txn_count_next_24h": 0.5011
+    },
+    "flagged_suspiciously_perfect": [
+      "has_dispute_code"
+    ]
+  }
+}

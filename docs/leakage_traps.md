@@ -23,3 +23,21 @@ brilliant and dies in production. The fix, enforced structurally by the separate
 label table and its `reported_at`, is **temporal splitting** plus point-in-time
 (`as_of`) feature computation. Milestone 2 removes these three, re-scores, and
 documents the (healthy) drop in offline AUC.
+
+## Audit outcome (Milestone 2 — DONE)
+
+Run `python -m lonestar.audit --data data/raw`. On the CI-scale slice, all three
+detectors return **LEAK** and the temporal (past → future) split shows the damage:
+
+| | Test AUC |
+|---|---|
+| Logistic regression **with** the three leaks | **≈ 1.00** (a fantasy) |
+| Same model **without** them (honest features only) | **≈ 0.79** |
+| **Inflation attributable purely to leakage** | **≈ +0.21 AUC** |
+
+The full write-up is regenerated each run at
+[`docs/leakage_audit_report.md`](leakage_audit_report.md), with EDA context in
+[`docs/eda_findings.md`](eda_findings.md) and figures under `reports/figures/`.
+Key nuance: a naive **univariate AUC screen catches only `dispute_reason_code`** —
+the two look-ahead leaks stay invisible to it, which is exactly why the audit
+uses a **structural detector per archetype** rather than one blunt test.

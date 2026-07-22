@@ -30,5 +30,11 @@ jobs:
       - name: Generate CI-scale dataset
         run: python -m lonestar.generation --out data/raw
 
+      - name: Leakage audit (writes docs/leakage_audit_report.md)
+        run: python -m lonestar.audit --data data/raw
+
+      - name: EDA findings (no figures needed in CI)
+        run: python -m lonestar.eda --data data/raw --no-figures
+
       - name: Tests
         run: pytest -q
