@@ -48,5 +48,8 @@ jobs:
       - name: Batch-score the feature table
         run: python -m lonestar.batch --features data/features/features.parquet --model models/fraud_model.joblib --policy models/decision_policy.json --out data/scored/scored.parquet
 
+      - name: "Drift monitoring (CI: skip HTML)"
+        run: python -m lonestar.monitoring --features data/features/features.parquet --raw data/raw --model models/fraud_model.joblib --out reports --no-html
+
       - name: Tests
         run: pytest -q

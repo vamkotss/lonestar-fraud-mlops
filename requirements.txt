@@ -17,6 +17,9 @@ fastapi>=0.110           # the scoring API
 uvicorn[standard]>=0.29  # ASGI server to run it
 httpx>=0.27              # used by FastAPI's TestClient in the serving tests
 
+# --- Milestone 8: drift monitoring ---
+evidently>=0.7            # HTML drift report (PSI/alerting implemented natively)
+
 # --- dev / CI ---
 pytest>=8.0
 ruff>=0.5

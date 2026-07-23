@@ -1,0 +1,350 @@
+{
+  "baseline": {
+    "n_rows": 3534503,
+    "last_month": 12,
+    "end": "2025-01-18 15:11:29.400000",
+    "segment_stats": {
+      "CHIP": {
+        "mean": 0.10630313418092373,
+        "std": 0.03708999305482139,
+        "n_months": 13
+      },
+      "CONTACTLESS": {
+        "mean": 0.06510872538066367,
+        "std": 0.021052704131766138,
+        "n_months": 13
+      },
+      "ECOM": {
+        "mean": 0.21752775639290967,
+        "std": 0.08549311600739636,
+        "n_months": 13
+      },
+      "MANUAL": {
+        "mean": 0.035580465732007495,
+        "std": 0.01293361332626199,
+        "n_months": 13
+      },
+      "SWIPE": {
+        "mean": 0.0549095443813383,
+        "std": 0.01761217478592329,
+        "n_months": 13
+      },
+      "__overall__": {
+        "mean": 0.10823761876064163,
+        "std": 0.03773272802385059,
+        "n_months": 13
+      }
+    }
+  },
+  "monitoring_threshold": 0.5,
+  "windows": [
+    {
+      "month": 13,
+      "n_rows": 258760,
+      "population_score_psi": 0.1958,
+      "population_features_drifted": 2,
+      "overall_alert_rate": 0.15757,
+      "segments": [
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.15638,
+          "baseline_rate": 0.1063,
+          "ratio": 1.47,
+          "zscore": 1.35,
+          "status": "OK"
+        },
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.32606,
+          "baseline_rate": 0.21753,
+          "ratio": 1.5,
+          "zscore": 1.27,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.08956,
+          "baseline_rate": 0.06511,
+          "ratio": 1.38,
+          "zscore": 1.16,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.07314,
+          "baseline_rate": 0.05491,
+          "ratio": 1.33,
+          "zscore": 1.03,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.03819,
+          "baseline_rate": 0.03558,
+          "ratio": 1.07,
+          "zscore": 0.2,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    },
+    {
+      "month": 14,
+      "n_rows": 285640,
+      "population_score_psi": 0.1491,
+      "population_features_drifted": 2,
+      "overall_alert_rate": 0.16186,
+      "segments": [
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.1608,
+          "baseline_rate": 0.1063,
+          "ratio": 1.51,
+          "zscore": 1.47,
+          "status": "OK"
+        },
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.33446,
+          "baseline_rate": 0.21753,
+          "ratio": 1.54,
+          "zscore": 1.37,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.09004,
+          "baseline_rate": 0.06511,
+          "ratio": 1.38,
+          "zscore": 1.18,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.07207,
+          "baseline_rate": 0.05491,
+          "ratio": 1.31,
+          "zscore": 0.97,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.04364,
+          "baseline_rate": 0.03558,
+          "ratio": 1.23,
+          "zscore": 0.62,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    },
+    {
+      "month": 15,
+      "n_rows": 277234,
+      "population_score_psi": 0.1059,
+      "population_features_drifted": 2,
+      "overall_alert_rate": 0.16674,
+      "segments": [
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.16855,
+          "baseline_rate": 0.1063,
+          "ratio": 1.59,
+          "zscore": 1.68,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.09589,
+          "baseline_rate": 0.06511,
+          "ratio": 1.47,
+          "zscore": 1.46,
+          "status": "OK"
+        },
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.33525,
+          "baseline_rate": 0.21753,
+          "ratio": 1.54,
+          "zscore": 1.38,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.07333,
+          "baseline_rate": 0.05491,
+          "ratio": 1.34,
+          "zscore": 1.05,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.0427,
+          "baseline_rate": 0.03558,
+          "ratio": 1.2,
+          "zscore": 0.55,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    },
+    {
+      "month": 16,
+      "n_rows": 286061,
+      "population_score_psi": 0.0852,
+      "population_features_drifted": 2,
+      "overall_alert_rate": 0.17062,
+      "segments": [
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.17444,
+          "baseline_rate": 0.1063,
+          "ratio": 1.64,
+          "zscore": 1.84,
+          "status": "OK"
+        },
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.34057,
+          "baseline_rate": 0.21753,
+          "ratio": 1.57,
+          "zscore": 1.44,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.09516,
+          "baseline_rate": 0.06511,
+          "ratio": 1.46,
+          "zscore": 1.43,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.07982,
+          "baseline_rate": 0.05491,
+          "ratio": 1.45,
+          "zscore": 1.41,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.04719,
+          "baseline_rate": 0.03558,
+          "ratio": 1.33,
+          "zscore": 0.9,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    },
+    {
+      "month": 17,
+      "n_rows": 277142,
+      "population_score_psi": 0.0714,
+      "population_features_drifted": 2,
+      "overall_alert_rate": 0.16292,
+      "segments": [
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.16396,
+          "baseline_rate": 0.1063,
+          "ratio": 1.54,
+          "zscore": 1.55,
+          "status": "OK"
+        },
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.33598,
+          "baseline_rate": 0.21753,
+          "ratio": 1.54,
+          "zscore": 1.39,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.09044,
+          "baseline_rate": 0.06511,
+          "ratio": 1.39,
+          "zscore": 1.2,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.06891,
+          "baseline_rate": 0.05491,
+          "ratio": 1.25,
+          "zscore": 0.79,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.04383,
+          "baseline_rate": 0.03558,
+          "ratio": 1.23,
+          "zscore": 0.64,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    },
+    {
+      "month": 18,
+      "n_rows": 6586,
+      "population_score_psi": 0.0545,
+      "population_features_drifted": 7,
+      "overall_alert_rate": 0.14273,
+      "segments": [
+        {
+          "segment": "ECOM",
+          "alert_rate": 0.3169,
+          "baseline_rate": 0.21753,
+          "ratio": 1.46,
+          "zscore": 1.16,
+          "status": "OK"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.04545,
+          "baseline_rate": 0.03558,
+          "ratio": 1.28,
+          "zscore": 0.76,
+          "status": "OK"
+        },
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.13247,
+          "baseline_rate": 0.1063,
+          "ratio": 1.25,
+          "zscore": 0.71,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.07849,
+          "baseline_rate": 0.06511,
+          "ratio": 1.21,
+          "zscore": 0.64,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.05891,
+          "baseline_rate": 0.05491,
+          "ratio": 1.07,
+          "zscore": 0.23,
+          "status": "OK"
+        }
+      ],
+      "status": "OK",
+      "reasons": []
+    }
+  ],
+  "first_alert_month": null,
+  "population_psi_ever_major": false
+}
