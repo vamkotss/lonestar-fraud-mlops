@@ -12,14 +12,14 @@
 | Model | ROC-AUC | PR-AUC |
 |---|---|---|
 | LR | 0.8633 | 0.7343 |
-| XGB | 0.8610 | 0.7312 |
+| XGB | 0.8633 | 0.7319 |
 
 ## Temporal cross-validation (mean over expanding-window folds)
 
 | Model | ROC-AUC | PR-AUC |
 |---|---|---|
 | LR | 0.5672 | 0.1849 |
-| XGB | 0.5321 | 0.1840 |
+| XGB | 0.5422 | 0.1843 |
 
 _CV means are dragged down by the earliest expanding-window folds, which fall **before** the month-14 ring: pre-ring fraud is baseline noise and genuinely near-unpredictable. XGBoost still leads on PR-AUC (the selection metric); the holdout above, which includes the ring, is where signal concentrates._
 

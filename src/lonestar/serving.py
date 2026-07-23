@@ -37,16 +37,12 @@ import xgboost as xgb
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
+from lonestar import scoring
 from lonestar.features import FEATURE_COLUMNS
 
-# entry-mode one-hots, used to recover the segment for the policy lookup.
-_ENTRY_ONEHOTS = {
-    "entry_CHIP": "CHIP",
-    "entry_CONTACTLESS": "CONTACTLESS",
-    "entry_SWIPE": "SWIPE",
-    "entry_ECOM": "ECOM",
-    "entry_MANUAL": "MANUAL",
-}
+# entry-mode one-hots live in the shared scoring core so the online and batch
+# paths recover the segment identically (see lonestar.scoring).
+_ENTRY_ONEHOTS = scoring.ENTRY_ONEHOTS
 
 
 # --------------------------------------------------------------------------- #
@@ -87,14 +83,9 @@ class Artifacts:
         return self._feature_columns
 
     def threshold_for(self, segment: str | None) -> float:
-        """Per-segment threshold from the M5 policy (global fallback, 0.5 last)."""
+        """Per-segment threshold from the M5 policy (via the shared core)."""
         self.ensure_loaded()
-        if not self._policy:
-            return 0.5
-        seg_map = self._policy.get("segment_thresholds", {})
-        if segment and segment in seg_map:
-            return float(seg_map[segment])
-        return float(self._policy.get("global_threshold", 0.5))
+        return scoring.threshold_for(self._policy, segment)
 
     def score_row(self, ordered_values: np.ndarray) -> tuple[float, np.ndarray]:
         """Return (fraud_probability, per-feature contributions).
@@ -204,13 +195,10 @@ def create_app(model_dir: Path | str | None = None) -> FastAPI:
         proba, contribs = arts.score_row(values)
 
         # Recover the segment from the entry one-hots, look up its threshold.
-        segment = None
-        for onehot, name in _ENTRY_ONEHOTS.items():
-            if onehot in req.features and req.features[onehot] >= 0.5:
-                segment = name
-                break
+        # Segment + decision come from the shared core, identical to the batch path.
+        segment = scoring.recover_segment(req.features)
         threshold = arts.threshold_for(segment)
-        decision = "DECLINE" if proba >= threshold else "APPROVE"
+        decision = scoring.decide(proba, threshold)
 
         # Top-5 reason codes by absolute TreeSHAP contribution.
         order = np.argsort(np.abs(contribs))[::-1][:5]

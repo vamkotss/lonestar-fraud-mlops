@@ -6,30 +6,30 @@
 
 A missed fraud costs the **whole transaction amount**; a false decline costs only **$5 + 2% of the amount**. The default 0.5 threshold minimises the *error count*; what a business actually wants is the threshold that minimises *dollars*. This memo finds that point.
 
-Here the cost-optimal global threshold is **1.0000** — slightly *above* 0.5. That is not a contradiction: the Milestone-4 model is imbalance-weighted, so at 0.5 it already declines aggressively (241191 false declines). Optimising dollars trims those false declines by roughly half while giving up almost no fraud capture — a strictly better operating point. (For a model whose raw fraud scores were tiny, the same procedure would push the threshold the other way; the method is what generalises, not the number.)
+Here the cost-optimal global threshold is **0.6919**. Thresholds are tuned on a **held-out calibration window** — the slice of time *after* the model's training window — and the economics below are measured on a later **test window** the thresholds never saw. That three-way split matters enormously: tuning thresholds on the model's own training data reads its memorised, near-perfect in-sample scores and produces a threshold that does not transfer (see ADR 0004).
 
-Thresholds are tuned on the training window and every dollar below is measured on the **held-out future** (test window after 2025-01-18 15:11:29.400000).
+Split cutoffs: `{"model_train_end": "2025-03-14 07:41:35.200000", "calib_end": "2025-05-08 00:29:02.400000"}`
 
 ## Policy comparison (test window)
 
 | Policy | Total cost | Saved vs approve-all | Fraud $ caught | False-decline rate |
 |---|---|---|---|---|
-| Approve everything | $2,345,454 | $0 | 0.0% | 0.000% |
-| Default threshold 0.5 | $1,959,853 | $385,601 | 96.8% | 16.005% |
-| Global optimal threshold | $2,345,454 | $0 | 0.0% | 0.000% |
-| Per-segment thresholds | $2,345,454 | $0 | 0.0% | 0.000% |
-
-Reading the table: moving from the naive 0.5 to per-segment thresholds cuts total cost while **lowering** the false-decline rate — fewer good customers turned away *and* less money lost.
+| Approve everything | $836,571 | $0 | 0.0% | 0.000% |
+| Default threshold 0.5 | $665,091 | $171,481 | 96.7% | 16.301% |
+| Global optimal threshold | $53,868 | $782,704 | 94.9% | 0.106% |
+| Per-segment thresholds | $48,181 | $788,391 | 94.9% | 0.067% |
 
 ## Per-segment thresholds
 
-Entry modes carry very different fraud rates (ECOM fraud runs several times higher than CHIP), so each channel gets its own threshold. A single global number over-polices safe channels and under-polices risky ones; segmenting recovers additional dollars over the global optimum.
+Each entry mode gets its own threshold, and the result is more interesting than a uniform tightening. Channels where fraud is **predictable** (the e-commerce channel the fraud ring attacks) get an aggressive, low threshold. Channels whose fraud is unpredictable background noise get a threshold at or near **1.0 — meaning 'never decline'**, because declining there burns goodwill and money without catching anything the model can actually see.
+
+That is the cost model doing real work: it does not just ask *how likely is fraud*, it asks *where is intervening worth the money*.
 
 | entry_mode | threshold |
 |---|---|
 | CHIP | 1.0000 |
 | CONTACTLESS | 1.0000 |
-| ECOM | 1.0000 |
+| ECOM | 0.6510 |
 | MANUAL | 1.0000 |
 | SWIPE | 1.0000 |
 

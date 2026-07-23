@@ -22,7 +22,7 @@
     "merchant_txns_seen",
     "merchant_fraud_rate_asof"
   ],
-  "trained_at_utc": "2026-07-22T02:46:08+00:00",
+  "trained_at_utc": "2026-07-22T22:57:14+00:00",
   "holdout_metrics": {
     "roc_auc": 0.8633,
     "pr_auc": 0.7343

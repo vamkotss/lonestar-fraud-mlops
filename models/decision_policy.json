@@ -1,10 +1,10 @@
 {
   "segment_col": "entry_mode",
-  "global_threshold": 1.000000001,
+  "global_threshold": 0.6919050900493336,
   "segment_thresholds": {
     "CHIP": 1.000000001,
     "CONTACTLESS": 1.000000001,
-    "ECOM": 1.000000001,
+    "ECOM": 0.6509840622415898,
     "MANUAL": 1.000000001,
     "SWIPE": 1.000000001
   },

@@ -108,6 +108,38 @@ def test_apply_policy_respects_thresholds(scored):
 # --------------------------------------------------------------------------- #
 # Economics evaluation
 # --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+# Three-way split: thresholds must never be tuned on the model's training data
+# --------------------------------------------------------------------------- #
+def test_three_way_split_calibration_is_held_out(scored):
+    """Calibration starts where model training ends; test comes after calibration."""
+    ts = scored["event_ts"]
+    calib, test, cutoffs = decisions.three_way_split(ts)
+    # No overlap between the two evaluation windows.
+    assert not (calib & test).any()
+    # Calibration begins at/after the model's training cutoff -- nothing in-sample.
+    train_end = ts.quantile(decisions._MODEL_TRAIN_FRAC)
+    assert ts[calib].min() >= train_end
+    # Test is strictly later than calibration.
+    assert ts[test].min() >= ts[calib].max()
+    assert "model_train_end" in cutoffs and "calib_end" in cutoffs
+
+
+def test_policy_is_not_degenerate(scored):
+    """Guard against the 'decline nobody everywhere' collapse.
+
+    If every threshold optimises to the never-decline sentinel, the decision layer
+    is switched off -- which is what happened when thresholds were tuned in-sample.
+    At least one segment must be willing to decline.
+    """
+    cost = decisions.CostModel()
+    policy = decisions.fit_segment_policy(scored, cost)
+    thresholds = list(policy["segment_thresholds"].values())
+    assert any(t <= 1.0 for t in thresholds)
+    # And applying the policy declines a non-zero number of transactions.
+    assert decisions.apply_policy(scored, policy).sum() > 0
+
+
 def test_evaluate_quantifies_savings(scored):
     cost = decisions.CostModel()
     # Fit on the first 70% of time, evaluate on the rest (temporal discipline).

@@ -49,6 +49,10 @@ _KEY_COLUMNS = ("transaction_id", "event_ts")
 _LABEL = "is_fraud"
 _EXPERIMENT = "lonestar-fraud"
 
+# Fraction of the timeline the final model trains on. Exported so the decision
+# layer (M5) can tune thresholds on data the model has NOT seen -- see ADR 0004.
+TRAIN_FRAC = 0.80
+
 
 # --------------------------------------------------------------------------- #
 # Temporal cross-validation -- expanding window, past -> future only
@@ -136,7 +140,9 @@ def cross_validate(X: pd.DataFrame, y: np.ndarray, ts: pd.Series, kind: str, n_s
     return per_fold, mean
 
 
-def train_final(X: pd.DataFrame, y: np.ndarray, ts: pd.Series, kind: str, train_frac: float = 0.80):
+def train_final(
+    X: pd.DataFrame, y: np.ndarray, ts: pd.Series, kind: str, train_frac: float = TRAIN_FRAC
+):
     """Train on the earliest ``train_frac`` of time, evaluate on the latest block."""
     cutoff = ts.quantile(train_frac)
     train = (ts < cutoff).to_numpy()
@@ -237,7 +243,7 @@ def run(features_path: Path, out: Path, track: bool = True, n_splits: int = 4) -
         fitted[kind] = model
         split_info = split
 
-    prevalence = float(y[(ts >= ts.quantile(0.80)).to_numpy()].mean())
+    prevalence = float(y[(ts >= ts.quantile(TRAIN_FRAC)).to_numpy()].mean())
     # Select the winner on the honest metric.
     winner = max(holdout, key=lambda k: holdout[k]["pr_auc"])
 

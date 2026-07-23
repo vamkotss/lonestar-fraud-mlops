@@ -40,9 +40,19 @@ import numpy as np
 import pandas as pd
 
 from lonestar.features import FEATURE_COLUMNS
+from lonestar.modeling import TRAIN_FRAC as _MODEL_TRAIN_FRAC
 
 _SEGMENT_COL = "entry_mode"
-_TRAIN_FRAC = 0.70  # tune thresholds on the earliest 70% of time
+
+# --- The three-way temporal split (see ADR 0004) ------------------------------
+# Thresholds MUST NOT be tuned on data the model was trained on. An overfit model
+# scores its own training fraud near 1.0, so an in-sample threshold looks great
+# and does not transfer -- at full data scale it collapses to "decline nobody".
+# So the timeline is cut three ways:
+#     [0, TRAIN_FRAC)            the model's training window   (M4)
+#     [TRAIN_FRAC, _CALIB_END)   held-out CALIBRATION -> tune thresholds here
+#     [_CALIB_END, 1.0)          held-out TEST -> report economics here
+_CALIB_END_FRAC = 0.90
 
 
 # --------------------------------------------------------------------------- #
@@ -211,18 +221,31 @@ def _score_frame(features_path: Path, raw_dir: Path, model_path: Path) -> pd.Dat
     return df
 
 
+def three_way_split(ts: pd.Series) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Return (calibration_mask, test_mask, cutoffs) for honest threshold tuning.
+
+    The calibration window starts where the MODEL's training window ends, so no
+    threshold is ever tuned on a row the model memorised.
+    """
+    train_end = ts.quantile(_MODEL_TRAIN_FRAC)
+    calib_end = ts.quantile(_CALIB_END_FRAC)
+    calib = ((ts >= train_end) & (ts < calib_end)).to_numpy()
+    test = (ts >= calib_end).to_numpy()
+    return calib, test, {"model_train_end": str(train_end), "calib_end": str(calib_end)}
+
+
 def run(features_path: Path, raw_dir: Path, model_path: Path, cost: CostModel | None = None) -> DecisionReport:
     cost = cost or CostModel()
     df = _score_frame(features_path, raw_dir, model_path)
 
-    # Temporal split: tune thresholds on the past, report economics on the future.
-    cutoff = df["event_ts"].quantile(_TRAIN_FRAC)
-    train = df[df["event_ts"] < cutoff]
-    test = df[df["event_ts"] >= cutoff]
+    # Tune on a HELD-OUT calibration window; report economics on a later test window.
+    calib_mask, test_mask, cutoffs = three_way_split(df["event_ts"])
+    calib = df[calib_mask]
+    test = df[test_mask]
 
-    policy = fit_segment_policy(train, cost)
+    policy = fit_segment_policy(calib, cost)
     economics = evaluate(test, policy, cost)
-    return DecisionReport(policy=policy, economics=economics, split_cutoff=str(cutoff))
+    return DecisionReport(policy=policy, economics=economics, split_cutoff=json.dumps(cutoffs))
 
 
 def _render_memo(r: DecisionReport) -> str:
@@ -253,17 +276,15 @@ def _render_memo(r: DecisionReport) -> str:
             "threshold minimises the *error count*; what a business actually wants is "
             "the threshold that minimises *dollars*. This memo finds that point.",
             "",
-            f"Here the cost-optimal global threshold is **{p['global_threshold']:.4f}** — "
-            "slightly *above* 0.5. That is not a contradiction: the Milestone-4 model "
-            "is imbalance-weighted, so at 0.5 it already declines aggressively "
-            f"({e['threshold_0.5']['false_declines']} false declines). Optimising "
-            "dollars trims those false declines by roughly half while giving up almost "
-            "no fraud capture — a strictly better operating point. (For a model whose "
-            "raw fraud scores were tiny, the same procedure would push the threshold "
-            "the other way; the method is what generalises, not the number.)",
+            f"Here the cost-optimal global threshold is **{p['global_threshold']:.4f}**. "
+            "Thresholds are tuned on a **held-out calibration window** — the slice of "
+            "time *after* the model's training window — and the economics below are "
+            "measured on a later **test window** the thresholds never saw. That three-way "
+            "split matters enormously: tuning thresholds on the model's own training data "
+            "reads its memorised, near-perfect in-sample scores and produces a threshold "
+            "that does not transfer (see ADR 0004).",
             "",
-            "Thresholds are tuned on the training window and every dollar below is "
-            f"measured on the **held-out future** (test window after {r.split_cutoff}).",
+            f"Split cutoffs: `{r.split_cutoff}`",
             "",
             "## Policy comparison (test window)",
             "",
@@ -274,16 +295,17 @@ def _render_memo(r: DecisionReport) -> str:
             stat("Global optimal threshold", "global_optimal"),
             stat("Per-segment thresholds", "per_segment"),
             "",
-            "Reading the table: moving from the naive 0.5 to per-segment thresholds "
-            "cuts total cost while **lowering** the false-decline rate — fewer good "
-            "customers turned away *and* less money lost.",
-            "",
             "## Per-segment thresholds",
             "",
-            "Entry modes carry very different fraud rates (ECOM fraud runs several times "
-            "higher than CHIP), so each channel gets its own threshold. A single global "
-            "number over-polices safe channels and under-polices risky ones; segmenting "
-            "recovers additional dollars over the global optimum.",
+            "Each entry mode gets its own threshold, and the result is more interesting "
+            "than a uniform tightening. Channels where fraud is **predictable** (the "
+            "e-commerce channel the fraud ring attacks) get an aggressive, low threshold. "
+            "Channels whose fraud is unpredictable background noise get a threshold at or "
+            "near **1.0 — meaning 'never decline'**, because declining there burns "
+            "goodwill and money without catching anything the model can actually see.",
+            "",
+            "That is the cost model doing real work: it does not just ask *how likely is "
+            "fraud*, it asks *where is intervening worth the money*.",
             "",
             f"| {p['segment_col']} | threshold |",
             "|---|---|",
