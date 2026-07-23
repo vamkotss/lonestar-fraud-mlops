@@ -25,7 +25,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Lint (ruff)
-        run: ruff check src tests
+        run: ruff check src tests dags
 
       - name: Generate CI-scale dataset
         run: python -m lonestar.generation --out data/raw
@@ -53,6 +53,11 @@ jobs:
 
       - name: "Retraining cycle (simulated stale champion)"
         run: python -m lonestar.retraining --data data/raw --models models --champion-as-of 2025-01-01
+
+      - name: Governance (model card + artifact completeness gate)
+        run: |
+          python -m lonestar.governance
+          python -m lonestar.governance --check
 
       - name: Tests
         run: pytest -q
