@@ -4,7 +4,7 @@
 
 ## Headline
 
-No window reached ALERT status.
+The monitor raises its first **ALERT in month 13** — using no labels at all.
 
 The fraud ring switches on around month 13. Its chargebacks do not arrive for another 30-60 days, so the observed fraud rate cannot possibly reveal it yet. This monitor sees it immediately from **inputs and scores only** — which is the entire argument for input drift monitoring on a delayed-label problem.
 
@@ -22,20 +22,21 @@ A ring touches ~1% of cards. Against ~12,000 transactions a month its footprint 
 
 | Month | Rows | Score PSI | Features drifted | Overall alert rate | Worst segment | Status |
 |---|---|---|---|---|---|---|
-| 13 | 258,760 | 0.196 | 2/20 | 15.76% | `CHIP` 15.64% (1.47x, 1.35σ) | **OK** |
-| 14 | 285,640 | 0.149 | 2/20 | 16.19% | `CHIP` 16.08% (1.51x, 1.47σ) | **OK** |
-| 15 | 277,234 | 0.106 | 2/20 | 16.67% | `CHIP` 16.86% (1.59x, 1.68σ) | **OK** |
-| 16 | 286,061 | 0.085 | 2/20 | 17.06% | `CHIP` 17.44% (1.64x, 1.84σ) | **OK** |
-| 17 | 277,142 | 0.071 | 2/20 | 16.29% | `CHIP` 16.40% (1.54x, 1.55σ) | **OK** |
-| 18 | 6,586 | 0.054 | 7/20 | 14.27% | `ECOM` 31.69% (1.46x, 1.16σ) | **OK** |
+| 13 | 258,760 | 0.196 | 2/20 | 1.32% | `ECOM` 3.10% (3.12x, 4.39σ) | **ALERT** |
+| 14 | 285,640 | 0.149 | 2/20 | 1.39% | `ECOM` 3.27% (3.29x, 4.75σ) | **ALERT** |
+| 15 | 277,234 | 0.106 | 2/20 | 1.35% | `ECOM` 3.03% (3.05x, 4.24σ) | **ALERT** |
+| 16 | 286,061 | 0.085 | 2/20 | 1.43% | `ECOM` 3.14% (3.16x, 4.48σ) | **ALERT** |
+| 17 | 277,142 | 0.071 | 2/20 | 1.43% | `ECOM` 3.21% (3.22x, 4.61σ) | **ALERT** |
+| 18 | 6,586 | 0.054 | 7/20 | 1.02% | `ECOM` 2.59% (2.6x, 3.32σ) | **ALERT** |
 
 Note how the *overall* alert rate stays flat while the e-commerce segment's rate multiplies — the ring is invisible in the aggregate and obvious in the channel it attacks.
 
 ## The alert rule
 
-- Baseline: monthly alert rate per segment over the first 70% of the timeline (normal operations), giving a mean and standard deviation.
-- **WARN** at 3.0σ above baseline; **ALERT** at 5.0σ.
-- 'Alert rate' = share of transactions scoring above 0.5 — a monitoring threshold, deliberately separate from the business decline thresholds in the M5 policy.
+- **The tail is defined per segment as that segment's own baseline 99% score percentile**, so the baseline tail rate is ~1% by construction — whatever the model's calibration. A fixed cutoff would be a genuine tail for one model and 30% of the population for another.
+- Baseline: monthly tail rate per segment over the first 70% of the timeline (normal operations), giving a mean and standard deviation.
+- **WARN** when the rate is >= 1.5x baseline AND >= 2.0σ; **ALERT** at >= 2.0x AND >= 3.0σ, or at 5.0σ alone. Requiring both an economic and a statistical signal keeps small segments from crying wolf.
+- This monitoring tail is deliberately separate from the business decline thresholds in the M5 policy, so changing risk appetite never silently changes observability.
 - Windows under 2,000 rows are skipped: a truncated final month produces meaningless drift on calendar features and would fire a false alarm.
 
 Every input to this rule is available the instant a transaction happens. Nothing waits on a chargeback.

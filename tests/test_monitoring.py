@@ -70,8 +70,16 @@ def test_psi_bands():
 # --------------------------------------------------------------------------- #
 def test_alert_rate_counts_the_tail():
     scores = np.array([0.1, 0.2, 0.6, 0.9])
-    assert monitoring.alert_rate(scores, threshold=0.5) == 0.5
-    assert monitoring.alert_rate(np.array([]), threshold=0.5) == 0.0
+    assert monitoring.alert_rate(scores, 0.5) == 0.5
+    assert monitoring.alert_rate(np.array([]), 0.5) == 0.0
+
+
+def test_tail_threshold_is_a_baseline_quantile():
+    scores = np.linspace(0, 1, 1001)
+    thr = monitoring.tail_threshold(scores, quantile=0.99)
+    assert 0.985 < thr < 0.995
+    # By construction ~1% of the baseline sits at or above its own 99th percentile.
+    assert abs(monitoring.alert_rate(scores, thr) - 0.01) < 0.005
 
 
 def test_baseline_stats_per_segment(scored):
@@ -80,8 +88,11 @@ def test_baseline_stats_per_segment(scored):
     stats = monitoring.baseline_stats(baseline)
     assert "__overall__" in stats
     for seg in scored["entry_mode"].unique():
-        assert str(seg) in stats
-        assert stats[str(seg)]["n_months"] > 1  # enough history for a control limit
+        st = stats[str(seg)]
+        assert st["n_months"] > 1  # enough history for a control limit
+        # The tail rate is pinned near (1 - quantile) BY CONSTRUCTION, which is what
+        # makes the monitor independent of how the model happens to be calibrated.
+        assert abs(st["mean"] - (1 - monitoring.TAIL_QUANTILE)) < 0.005
 
 
 # --------------------------------------------------------------------------- #
@@ -134,6 +145,29 @@ def test_monitoring_path_is_label_free(scored):
     assert without_label["first_alert_month"] == with_label["first_alert_month"]
     assert [w["status"] for w in without_label["windows"]] == [
         w["status"] for w in with_label["windows"]
+    ]
+
+
+def test_alerts_are_independent_of_model_calibration(scored):
+    """Regression guard for a bug found at full scale.
+
+    A fixed score cutoff (e.g. 0.5) is a genuine tail for one model and captures
+    30% of the population for a more aggressively calibrated one -- at which point
+    the "tail rate" measures the bulk, baseline variance explodes, and the monitor
+    never fires. Because the tail is a quantile of each segment's OWN baseline,
+    any monotonic re-calibration of the scores must leave the alerts unchanged.
+    """
+    original = monitoring.monitor(scored)
+
+    # A monotonic squash that massively inflates how many rows sit above 0.5,
+    # exactly like the imbalance-weighted full-scale model did.
+    recalibrated = scored.copy()
+    recalibrated["proba"] = recalibrated["proba"] ** 0.25
+
+    shifted = monitoring.monitor(recalibrated)
+    assert shifted["first_alert_month"] == original["first_alert_month"]
+    assert [w["status"] for w in shifted["windows"]] == [
+        w["status"] for w in original["windows"]
     ]
 
 

@@ -5,346 +5,364 @@
     "end": "2025-01-18 15:11:29.400000",
     "segment_stats": {
       "CHIP": {
-        "mean": 0.10630313418092373,
-        "std": 0.03708999305482139,
+        "tail_threshold": 0.583666,
+        "mean": 0.009955526617338395,
+        "std": 0.0046794180632630505,
         "n_months": 13
       },
       "CONTACTLESS": {
-        "mean": 0.06510872538066367,
-        "std": 0.021052704131766138,
+        "tail_threshold": 0.569596,
+        "mean": 0.009958696471415332,
+        "std": 0.0049573488683561035,
         "n_months": 13
       },
       "ECOM": {
-        "mean": 0.21752775639290967,
-        "std": 0.08549311600739636,
+        "tail_threshold": 0.605403,
+        "mean": 0.009954141630318186,
+        "std": 0.004800026420369392,
         "n_months": 13
       },
       "MANUAL": {
-        "mean": 0.035580465732007495,
-        "std": 0.01293361332626199,
+        "tail_threshold": 0.550451,
+        "mean": 0.009949021058317778,
+        "std": 0.0060769387539622854,
         "n_months": 13
       },
       "SWIPE": {
-        "mean": 0.0549095443813383,
-        "std": 0.01761217478592329,
+        "tail_threshold": 0.564177,
+        "mean": 0.00997250758131948,
+        "std": 0.004679047547363736,
         "n_months": 13
       },
       "__overall__": {
-        "mean": 0.10823761876064163,
-        "std": 0.03773272802385059,
+        "tail_threshold": 0.583684,
+        "mean": 0.009957063419307697,
+        "std": 0.004553447481665844,
         "n_months": 13
       }
     }
   },
-  "monitoring_threshold": 0.5,
+  "tail_quantile": 0.99,
   "windows": [
     {
       "month": 13,
       "n_rows": 258760,
       "population_score_psi": 0.1958,
       "population_features_drifted": 2,
-      "overall_alert_rate": 0.15757,
+      "overall_alert_rate": 0.01325,
       "segments": [
         {
-          "segment": "CHIP",
-          "alert_rate": 0.15638,
-          "baseline_rate": 0.1063,
-          "ratio": 1.47,
-          "zscore": 1.35,
-          "status": "OK"
-        },
-        {
           "segment": "ECOM",
-          "alert_rate": 0.32606,
-          "baseline_rate": 0.21753,
-          "ratio": 1.5,
-          "zscore": 1.27,
-          "status": "OK"
-        },
-        {
-          "segment": "CONTACTLESS",
-          "alert_rate": 0.08956,
-          "baseline_rate": 0.06511,
-          "ratio": 1.38,
-          "zscore": 1.16,
-          "status": "OK"
+          "alert_rate": 0.03104,
+          "baseline_rate": 0.00995,
+          "ratio": 3.12,
+          "zscore": 4.39,
+          "status": "ALERT"
         },
         {
           "segment": "SWIPE",
-          "alert_rate": 0.07314,
-          "baseline_rate": 0.05491,
-          "ratio": 1.33,
-          "zscore": 1.03,
+          "alert_rate": 0.01059,
+          "baseline_rate": 0.00997,
+          "ratio": 1.06,
+          "zscore": 0.13,
+          "status": "OK"
+        },
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.00943,
+          "baseline_rate": 0.00996,
+          "ratio": 0.95,
+          "zscore": -0.11,
           "status": "OK"
         },
         {
           "segment": "MANUAL",
-          "alert_rate": 0.03819,
-          "baseline_rate": 0.03558,
-          "ratio": 1.07,
-          "zscore": 0.2,
+          "alert_rate": 0.00907,
+          "baseline_rate": 0.00995,
+          "ratio": 0.91,
+          "zscore": -0.14,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.00854,
+          "baseline_rate": 0.00996,
+          "ratio": 0.86,
+          "zscore": -0.29,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 3.10% is 3.1x baseline (1.00%), 4.4 sigma"
+      ]
     },
     {
       "month": 14,
       "n_rows": 285640,
       "population_score_psi": 0.1491,
       "population_features_drifted": 2,
-      "overall_alert_rate": 0.16186,
+      "overall_alert_rate": 0.01394,
       "segments": [
         {
-          "segment": "CHIP",
-          "alert_rate": 0.1608,
-          "baseline_rate": 0.1063,
-          "ratio": 1.51,
-          "zscore": 1.47,
-          "status": "OK"
-        },
-        {
           "segment": "ECOM",
-          "alert_rate": 0.33446,
-          "baseline_rate": 0.21753,
-          "ratio": 1.54,
-          "zscore": 1.37,
-          "status": "OK"
+          "alert_rate": 0.03274,
+          "baseline_rate": 0.00995,
+          "ratio": 3.29,
+          "zscore": 4.75,
+          "status": "ALERT"
         },
         {
           "segment": "CONTACTLESS",
-          "alert_rate": 0.09004,
-          "baseline_rate": 0.06511,
-          "ratio": 1.38,
-          "zscore": 1.18,
-          "status": "OK"
-        },
-        {
-          "segment": "SWIPE",
-          "alert_rate": 0.07207,
-          "baseline_rate": 0.05491,
-          "ratio": 1.31,
-          "zscore": 0.97,
+          "alert_rate": 0.0098,
+          "baseline_rate": 0.00996,
+          "ratio": 0.98,
+          "zscore": -0.03,
           "status": "OK"
         },
         {
           "segment": "MANUAL",
-          "alert_rate": 0.04364,
-          "baseline_rate": 0.03558,
-          "ratio": 1.23,
-          "zscore": 0.62,
+          "alert_rate": 0.00977,
+          "baseline_rate": 0.00995,
+          "ratio": 0.98,
+          "zscore": -0.03,
+          "status": "OK"
+        },
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.00963,
+          "baseline_rate": 0.00996,
+          "ratio": 0.97,
+          "zscore": -0.07,
+          "status": "OK"
+        },
+        {
+          "segment": "SWIPE",
+          "alert_rate": 0.00953,
+          "baseline_rate": 0.00997,
+          "ratio": 0.96,
+          "zscore": -0.09,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 3.27% is 3.3x baseline (1.00%), 4.7 sigma"
+      ]
     },
     {
       "month": 15,
       "n_rows": 277234,
       "population_score_psi": 0.1059,
       "population_features_drifted": 2,
-      "overall_alert_rate": 0.16674,
+      "overall_alert_rate": 0.01353,
       "segments": [
         {
-          "segment": "CHIP",
-          "alert_rate": 0.16855,
-          "baseline_rate": 0.1063,
-          "ratio": 1.59,
-          "zscore": 1.68,
+          "segment": "ECOM",
+          "alert_rate": 0.03032,
+          "baseline_rate": 0.00995,
+          "ratio": 3.05,
+          "zscore": 4.24,
+          "status": "ALERT"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.01063,
+          "baseline_rate": 0.00995,
+          "ratio": 1.07,
+          "zscore": 0.11,
           "status": "OK"
         },
         {
           "segment": "CONTACTLESS",
-          "alert_rate": 0.09589,
-          "baseline_rate": 0.06511,
-          "ratio": 1.47,
-          "zscore": 1.46,
+          "alert_rate": 0.0097,
+          "baseline_rate": 0.00996,
+          "ratio": 0.97,
+          "zscore": -0.05,
           "status": "OK"
         },
         {
-          "segment": "ECOM",
-          "alert_rate": 0.33525,
-          "baseline_rate": 0.21753,
-          "ratio": 1.54,
-          "zscore": 1.38,
+          "segment": "CHIP",
+          "alert_rate": 0.00952,
+          "baseline_rate": 0.00996,
+          "ratio": 0.96,
+          "zscore": -0.09,
           "status": "OK"
         },
         {
           "segment": "SWIPE",
-          "alert_rate": 0.07333,
-          "baseline_rate": 0.05491,
-          "ratio": 1.34,
-          "zscore": 1.05,
-          "status": "OK"
-        },
-        {
-          "segment": "MANUAL",
-          "alert_rate": 0.0427,
-          "baseline_rate": 0.03558,
-          "ratio": 1.2,
-          "zscore": 0.55,
+          "alert_rate": 0.00844,
+          "baseline_rate": 0.00997,
+          "ratio": 0.85,
+          "zscore": -0.33,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 3.03% is 3.0x baseline (1.00%), 4.2 sigma"
+      ]
     },
     {
       "month": 16,
       "n_rows": 286061,
       "population_score_psi": 0.0852,
       "population_features_drifted": 2,
-      "overall_alert_rate": 0.17062,
+      "overall_alert_rate": 0.01433,
       "segments": [
         {
-          "segment": "CHIP",
-          "alert_rate": 0.17444,
-          "baseline_rate": 0.1063,
-          "ratio": 1.64,
-          "zscore": 1.84,
-          "status": "OK"
-        },
-        {
           "segment": "ECOM",
-          "alert_rate": 0.34057,
-          "baseline_rate": 0.21753,
-          "ratio": 1.57,
-          "zscore": 1.44,
+          "alert_rate": 0.03144,
+          "baseline_rate": 0.00995,
+          "ratio": 3.16,
+          "zscore": 4.48,
+          "status": "ALERT"
+        },
+        {
+          "segment": "MANUAL",
+          "alert_rate": 0.01158,
+          "baseline_rate": 0.00995,
+          "ratio": 1.16,
+          "zscore": 0.27,
           "status": "OK"
         },
         {
-          "segment": "CONTACTLESS",
-          "alert_rate": 0.09516,
-          "baseline_rate": 0.06511,
-          "ratio": 1.46,
-          "zscore": 1.43,
+          "segment": "CHIP",
+          "alert_rate": 0.01039,
+          "baseline_rate": 0.00996,
+          "ratio": 1.04,
+          "zscore": 0.09,
           "status": "OK"
         },
         {
           "segment": "SWIPE",
-          "alert_rate": 0.07982,
-          "baseline_rate": 0.05491,
-          "ratio": 1.45,
-          "zscore": 1.41,
+          "alert_rate": 0.01029,
+          "baseline_rate": 0.00997,
+          "ratio": 1.03,
+          "zscore": 0.07,
           "status": "OK"
         },
         {
-          "segment": "MANUAL",
-          "alert_rate": 0.04719,
-          "baseline_rate": 0.03558,
-          "ratio": 1.33,
-          "zscore": 0.9,
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.00985,
+          "baseline_rate": 0.00996,
+          "ratio": 0.99,
+          "zscore": -0.02,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 3.14% is 3.2x baseline (1.00%), 4.5 sigma"
+      ]
     },
     {
       "month": 17,
       "n_rows": 277142,
       "population_score_psi": 0.0714,
       "population_features_drifted": 2,
-      "overall_alert_rate": 0.16292,
+      "overall_alert_rate": 0.01425,
       "segments": [
         {
-          "segment": "CHIP",
-          "alert_rate": 0.16396,
-          "baseline_rate": 0.1063,
-          "ratio": 1.54,
-          "zscore": 1.55,
-          "status": "OK"
+          "segment": "ECOM",
+          "alert_rate": 0.03206,
+          "baseline_rate": 0.00995,
+          "ratio": 3.22,
+          "zscore": 4.61,
+          "status": "ALERT"
         },
         {
-          "segment": "ECOM",
-          "alert_rate": 0.33598,
-          "baseline_rate": 0.21753,
-          "ratio": 1.54,
-          "zscore": 1.39,
+          "segment": "MANUAL",
+          "alert_rate": 0.01087,
+          "baseline_rate": 0.00995,
+          "ratio": 1.09,
+          "zscore": 0.15,
           "status": "OK"
         },
         {
           "segment": "CONTACTLESS",
-          "alert_rate": 0.09044,
-          "baseline_rate": 0.06511,
-          "ratio": 1.39,
-          "zscore": 1.2,
+          "alert_rate": 0.01063,
+          "baseline_rate": 0.00996,
+          "ratio": 1.07,
+          "zscore": 0.14,
           "status": "OK"
         },
         {
           "segment": "SWIPE",
-          "alert_rate": 0.06891,
-          "baseline_rate": 0.05491,
-          "ratio": 1.25,
-          "zscore": 0.79,
+          "alert_rate": 0.01057,
+          "baseline_rate": 0.00997,
+          "ratio": 1.06,
+          "zscore": 0.13,
           "status": "OK"
         },
         {
-          "segment": "MANUAL",
-          "alert_rate": 0.04383,
-          "baseline_rate": 0.03558,
-          "ratio": 1.23,
-          "zscore": 0.64,
+          "segment": "CHIP",
+          "alert_rate": 0.00983,
+          "baseline_rate": 0.00996,
+          "ratio": 0.99,
+          "zscore": -0.03,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 3.21% is 3.2x baseline (1.00%), 4.6 sigma"
+      ]
     },
     {
       "month": 18,
       "n_rows": 6586,
       "population_score_psi": 0.0545,
       "population_features_drifted": 7,
-      "overall_alert_rate": 0.14273,
+      "overall_alert_rate": 0.01017,
       "segments": [
         {
           "segment": "ECOM",
-          "alert_rate": 0.3169,
-          "baseline_rate": 0.21753,
-          "ratio": 1.46,
-          "zscore": 1.16,
-          "status": "OK"
+          "alert_rate": 0.02587,
+          "baseline_rate": 0.00995,
+          "ratio": 2.6,
+          "zscore": 3.32,
+          "status": "ALERT"
         },
         {
           "segment": "MANUAL",
-          "alert_rate": 0.04545,
-          "baseline_rate": 0.03558,
-          "ratio": 1.28,
-          "zscore": 0.76,
-          "status": "OK"
-        },
-        {
-          "segment": "CHIP",
-          "alert_rate": 0.13247,
-          "baseline_rate": 0.1063,
-          "ratio": 1.25,
-          "zscore": 0.71,
-          "status": "OK"
-        },
-        {
-          "segment": "CONTACTLESS",
-          "alert_rate": 0.07849,
-          "baseline_rate": 0.06511,
-          "ratio": 1.21,
-          "zscore": 0.64,
+          "alert_rate": 0.00758,
+          "baseline_rate": 0.00995,
+          "ratio": 0.76,
+          "zscore": -0.39,
           "status": "OK"
         },
         {
           "segment": "SWIPE",
-          "alert_rate": 0.05891,
-          "baseline_rate": 0.05491,
-          "ratio": 1.07,
-          "zscore": 0.23,
+          "alert_rate": 0.00755,
+          "baseline_rate": 0.00997,
+          "ratio": 0.76,
+          "zscore": -0.52,
+          "status": "OK"
+        },
+        {
+          "segment": "CONTACTLESS",
+          "alert_rate": 0.00591,
+          "baseline_rate": 0.00996,
+          "ratio": 0.59,
+          "zscore": -0.82,
+          "status": "OK"
+        },
+        {
+          "segment": "CHIP",
+          "alert_rate": 0.00519,
+          "baseline_rate": 0.00996,
+          "ratio": 0.52,
+          "zscore": -1.02,
           "status": "OK"
         }
       ],
-      "status": "OK",
-      "reasons": []
+      "status": "ALERT",
+      "reasons": [
+        "ECOM: alert rate 2.59% is 2.6x baseline (1.00%), 3.3 sigma"
+      ]
     }
   ],
-  "first_alert_month": null,
+  "first_alert_month": 13,
   "population_psi_ever_major": false
 }

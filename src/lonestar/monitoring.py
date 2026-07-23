@@ -50,15 +50,23 @@ from lonestar.features import FEATURE_COLUMNS
 PSI_STABLE = 0.10
 PSI_MAJOR = 0.25
 
-# A transaction is "flagged" by the model above this score. This is a MONITORING
-# threshold (is the model getting suspicious?), deliberately separate from the
-# business decline thresholds in the M5 policy.
-ALERT_SCORE_THRESHOLD = 0.5
+# The "tail" is defined RELATIVE to each segment's own baseline score
+# distribution: its 99th percentile. This makes the monitor independent of model
+# calibration -- a hard-won lesson. A fixed cutoff (e.g. 0.5) is a genuine tail for
+# one model and captures 30% of the population for another (our imbalance-weighted
+# full-scale model), at which point "tail rate" measures the bulk, its baseline
+# variance explodes, and nothing ever trips. With a quantile the baseline rate is
+# ~1% per segment BY CONSTRUCTION, whatever the model does.
+TAIL_QUANTILE = 0.99
 
-# Control limits: how many baseline standard deviations above the normal monthly
-# alert rate counts as a real regime change rather than month-to-month noise.
-SIGMA_WARN = 3.0
-SIGMA_ALERT = 5.0
+# Control limits. A real regime change should be both economically meaningful
+# (the tail rate multiplies) and statistically solid (many baseline sigma). Ratio
+# alone is noisy on small segments; sigma alone is scale-sensitive. Require both.
+RATIO_WARN = 1.5
+RATIO_ALERT = 2.0
+SIGMA_WARN = 2.0
+SIGMA_ALERT = 3.0
+SIGMA_EXTREME = 5.0  # an outlier this large alerts on its own
 
 # The stable operating baseline -- the fraction of the timeline treated as "normal
 # operations". In production this is the window you validated the champion on.
@@ -127,10 +135,16 @@ def feature_drift(reference: pd.DataFrame, current: pd.DataFrame, columns=None) 
 # --------------------------------------------------------------------------- #
 # The metric that actually works: segment tail alert rate
 # --------------------------------------------------------------------------- #
-def alert_rate(scores: np.ndarray, threshold: float = ALERT_SCORE_THRESHOLD) -> float:
-    """Share of transactions the model scores above the monitoring threshold."""
+def alert_rate(scores: np.ndarray, threshold: float) -> float:
+    """Share of transactions the model scores at or above the tail threshold."""
     scores = np.asarray(scores, dtype=float)
     return float((scores >= threshold).mean()) if scores.size else 0.0
+
+
+def tail_threshold(scores: np.ndarray, quantile: float = TAIL_QUANTILE) -> float:
+    """The score defining the tail: a quantile of the BASELINE distribution."""
+    scores = np.asarray(scores, dtype=float)
+    return float(np.quantile(scores, quantile)) if scores.size else 1.0
 
 
 def _month_index(ts: pd.Series) -> np.ndarray:
@@ -140,24 +154,33 @@ def _month_index(ts: pd.Series) -> np.ndarray:
 def baseline_stats(
     baseline: pd.DataFrame,
     segment_col: str = "entry_mode",
-    threshold: float = ALERT_SCORE_THRESHOLD,
+    quantile: float = TAIL_QUANTILE,
 ) -> dict:
-    """Mean and std of the MONTHLY alert rate per segment during the baseline.
+    """Per-segment tail threshold + mean/std of the MONTHLY tail rate.
 
-    Using month-to-month variation (rather than one pooled rate) gives an honest
-    sense of normal fluctuation, which is exactly what a control limit needs.
+    The tail threshold is that segment's own baseline quantile, so the baseline
+    tail rate is ~1-quantile by construction. Month-to-month variation of that rate
+    (rather than one pooled number) is what the control limit needs.
     """
     b = baseline.assign(_month=_month_index(baseline["event_ts"]))
     stats: dict[str, dict] = {}
     for seg, g in b.groupby(segment_col):
-        monthly = g.groupby("_month")["proba"].apply(lambda s: alert_rate(s.to_numpy(), threshold))
+        thr = tail_threshold(g["proba"].to_numpy(), quantile)
+        monthly = g.groupby("_month")["proba"].apply(
+            lambda s, thr=thr: alert_rate(s.to_numpy(), thr)
+        )
         stats[str(seg)] = {
+            "tail_threshold": round(thr, 6),
             "mean": float(monthly.mean()),
             "std": float(monthly.std(ddof=0)) if len(monthly) > 1 else 0.0,
             "n_months": int(len(monthly)),
         }
-    overall = b.groupby("_month")["proba"].apply(lambda s: alert_rate(s.to_numpy(), threshold))
+    thr_all = tail_threshold(b["proba"].to_numpy(), quantile)
+    overall = b.groupby("_month")["proba"].apply(
+        lambda s, thr=thr_all: alert_rate(s.to_numpy(), thr)
+    )
     stats["__overall__"] = {
+        "tail_threshold": round(thr_all, 6),
         "mean": float(overall.mean()),
         "std": float(overall.std(ddof=0)) if len(overall) > 1 else 0.0,
         "n_months": int(len(overall)),
@@ -198,10 +221,18 @@ class WindowReport:
     reasons: list = field(default_factory=list)
 
 
-def _status_from_z(z: float) -> str:
-    if z >= SIGMA_ALERT:
+def _status_from(ratio: float, z: float) -> str:
+    """Combine an economic signal (ratio) with a statistical one (sigma).
+
+    Ratio alone is noisy on small segments; sigma alone is scale-sensitive. A real
+    regime change should multiply the tail rate AND sit well outside baseline
+    variation -- unless it is such an extreme outlier that sigma alone suffices.
+    """
+    if z >= SIGMA_EXTREME:
         return "ALERT"
-    if z >= SIGMA_WARN:
+    if ratio >= RATIO_ALERT and z >= SIGMA_ALERT:
+        return "ALERT"
+    if ratio >= RATIO_WARN and z >= SIGMA_WARN:
         return "WARN"
     return "OK"
 
@@ -210,7 +241,7 @@ def monitor(
     df: pd.DataFrame,
     baseline_frac: float = BASELINE_FRAC,
     segment_col: str = "entry_mode",
-    threshold: float = ALERT_SCORE_THRESHOLD,
+    quantile: float = TAIL_QUANTILE,
 ) -> dict:
     """Monitor every month after the baseline for drift, label-free.
 
@@ -219,7 +250,7 @@ def monitor(
     ts = df["event_ts"]
     baseline_end = ts.quantile(baseline_frac)
     baseline = df[ts < baseline_end]
-    stats = baseline_stats(baseline, segment_col, threshold)
+    stats = baseline_stats(baseline, segment_col, quantile)
 
     df = df.assign(_month=_month_index(ts))
     baseline_last_month = int(_month_index(baseline["event_ts"]).max())
@@ -240,10 +271,10 @@ def monitor(
             stat = stats.get(str(seg))
             if not stat or stat["n_months"] < 2:
                 continue
-            rate = alert_rate(g["proba"].to_numpy(), threshold)
+            rate = alert_rate(g["proba"].to_numpy(), stat["tail_threshold"])
             z = _zscore(rate, stat)
-            status = _status_from_z(z)
             ratio = rate / stat["mean"] if stat["mean"] > 0 else float("inf")
+            status = _status_from(ratio, z)
             seg_signals.append(
                 SegmentSignal(
                     segment=str(seg),
@@ -270,7 +301,9 @@ def monitor(
                 n_rows=int(len(cur)),
                 population_score_psi=score_psi,
                 population_features_drifted=fd["n_drifted"],
-                overall_alert_rate=round(alert_rate(cur["proba"].to_numpy(), threshold), 5),
+                overall_alert_rate=round(
+                    alert_rate(cur["proba"].to_numpy(), stats["__overall__"]["tail_threshold"]), 5
+                ),
                 segments=[
                     asdict(s) for s in sorted(seg_signals, key=lambda s: -(s.zscore or 0))
                 ],
@@ -289,7 +322,7 @@ def monitor(
             "end": str(baseline_end),
             "segment_stats": stats,
         },
-        "monitoring_threshold": threshold,
+        "tail_quantile": quantile,
         "windows": [asdict(w) for w in windows],
         "first_alert_month": first_alert,
         "population_psi_ever_major": psi_ever_major,
@@ -389,12 +422,20 @@ def _render_markdown(report: dict, ring_month: int = 13) -> str:
             "",
             "## The alert rule",
             "",
-            f"- Baseline: monthly alert rate per segment over the first {BASELINE_FRAC:.0%} of "
+            f"- **The tail is defined per segment as that segment's own baseline "
+            f"{TAIL_QUANTILE:.0%} score percentile**, so the baseline tail rate is ~"
+            f"{1 - TAIL_QUANTILE:.0%} by construction — whatever the model's calibration. "
+            "A fixed cutoff would be a genuine tail for one model and 30% of the "
+            "population for another.",
+            f"- Baseline: monthly tail rate per segment over the first {BASELINE_FRAC:.0%} of "
             "the timeline (normal operations), giving a mean and standard deviation.",
-            f"- **WARN** at {SIGMA_WARN}σ above baseline; **ALERT** at {SIGMA_ALERT}σ.",
-            f"- 'Alert rate' = share of transactions scoring above {ALERT_SCORE_THRESHOLD} — a "
-            "monitoring threshold, deliberately separate from the business decline "
-            "thresholds in the M5 policy.",
+            f"- **WARN** when the rate is >= {RATIO_WARN}x baseline AND >= {SIGMA_WARN}σ; "
+            f"**ALERT** at >= {RATIO_ALERT}x AND >= {SIGMA_ALERT}σ, or at "
+            f"{SIGMA_EXTREME}σ alone. Requiring both an economic and a statistical "
+            "signal keeps small segments from crying wolf.",
+            "- This monitoring tail is deliberately separate from the business decline "
+            "thresholds in the M5 policy, so changing risk appetite never silently "
+            "changes observability.",
             f"- Windows under {MIN_WINDOW_ROWS:,} rows are skipped: a truncated final month "
             "produces meaningless drift on calendar features and would fire a false alarm.",
             "",
