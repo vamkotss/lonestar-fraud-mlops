@@ -1,0 +1,85 @@
+{
+  "as_of": "2025-07-03 22:36:08",
+  "windows": {
+    "train_end": "2025-03-05 22:36:08",
+    "eval_start": "2025-03-05 22:36:08",
+    "eval_end": "2025-05-04 22:36:08"
+  },
+  "label_maturity_days": 60,
+  "challenger_training": {
+    "n_rows": 3962047,
+    "n_fraud": 7150,
+    "train_end": "2025-03-05 22:36:08"
+  },
+  "champion_eval": {
+    "overall": {
+      "pr_auc": 0.0031,
+      "roc_auc": 0.1809
+    },
+    "per_segment": {
+      "CHIP": {
+        "pr_auc": 0.0015,
+        "roc_auc": 0.4959
+      },
+      "CONTACTLESS": {
+        "pr_auc": 0.0018,
+        "roc_auc": 0.5055
+      },
+      "ECOM": {
+        "pr_auc": 0.0124,
+        "roc_auc": 0.1069
+      },
+      "MANUAL": {
+        "pr_auc": 0.0013,
+        "roc_auc": 0.3689
+      },
+      "SWIPE": {
+        "pr_auc": 0.0018,
+        "roc_auc": 0.5236
+      }
+    },
+    "n_rows": 553735,
+    "n_positives": 3085
+  },
+  "challenger_eval": {
+    "overall": {
+      "pr_auc": 0.7201,
+      "roc_auc": 0.864
+    },
+    "per_segment": {
+      "CHIP": {
+        "pr_auc": 0.0017,
+        "roc_auc": 0.5241
+      },
+      "CONTACTLESS": {
+        "pr_auc": 0.0016,
+        "roc_auc": 0.492
+      },
+      "ECOM": {
+        "pr_auc": 0.9413,
+        "roc_auc": 0.9725
+      },
+      "MANUAL": {
+        "pr_auc": 0.0017,
+        "roc_auc": 0.442
+      },
+      "SWIPE": {
+        "pr_auc": 0.0019,
+        "roc_auc": 0.4628
+      }
+    },
+    "n_rows": 553735,
+    "n_positives": 3085
+  },
+  "decision": {
+    "promote": true,
+    "reasons": [
+      "PR-AUC 0.0031 -> 0.7201 (+23129.0%)"
+    ],
+    "champion_pr_auc": 0.0031,
+    "challenger_pr_auc": 0.7201,
+    "relative_improvement": 231.2903,
+    "segment_regressions": {}
+  },
+  "ran_at_utc": "2026-07-23T01:57:27+00:00"
+}

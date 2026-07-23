@@ -51,5 +51,8 @@ jobs:
       - name: "Drift monitoring (CI: skip HTML)"
         run: python -m lonestar.monitoring --features data/features/features.parquet --raw data/raw --model models/fraud_model.joblib --out reports --no-html
 
+      - name: "Retraining cycle (simulated stale champion)"
+        run: python -m lonestar.retraining --data data/raw --models models --champion-as-of 2025-01-01
+
       - name: Tests
         run: pytest -q
